@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -34,22 +34,22 @@ using namespace std;
 using namespace ff;
 using namespace wf;
 
-extern atomic<long> sent_tuples;
+extern atomic<SIZE_T> sent_tuples;
 
 // Source_Functor class
 class Source_Functor
 {
 private:
     const vector<tuple_t> &dataset;
-    int rate;
-    size_t next_tuple_idx;
-    long generated_tuples;
-    unsigned long app_start_time;
-    unsigned long current_time;
-    size_t batch_size;
+    SIZE_T rate;
+    SIZE_T next_tuple_idx;
+    SIZE_T generated_tuples;
+    TIMESTAMP_T app_start_time;
+    TIMESTAMP_T current_time;
+    SIZE_T batch_size;
 
     // active_delay method
-    void active_delay(unsigned long waste_time)
+    void active_delay(TIMESTAMP_T waste_time)
     {
         auto start_time = current_time_nsecs();
         bool end = false;
@@ -63,8 +63,8 @@ public:
     // Constructor
     Source_Functor(const vector<tuple_t> &_dataset,
                    const int _rate,
-                   const unsigned long _app_start_time,
-                   const size_t _batch_size):
+                   const TIMESTAMP_T _app_start_time,
+                   const SIZE_T _batch_size):
                    dataset(_dataset),
                    rate(_rate),
                    next_tuple_idx(0),
@@ -91,7 +91,7 @@ public:
             generated_tuples++;
             next_tuple_idx = (next_tuple_idx + 1) % dataset.size();
             if (rate != 0) { // active waiting to respect the generation rate
-                long delay_nsec = (long) ((1.0d / rate) * 1e9);
+                TIMESTAMP_T delay_nsec = (TIMESTAMP_T) ((1.0 / rate) * 1e9);
                 active_delay(delay_nsec);
             }
         }

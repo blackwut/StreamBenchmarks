@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -40,18 +40,18 @@ using namespace wf;
 class Sink_Functor
 {
 private:
-    long sampling;
-    unsigned long app_start_time;
-    unsigned long current_time;
-    size_t processed;
-    size_t parallelism;
-    size_t replica_id;
+    SIZE_T sampling;
+    TIMESTAMP_T app_start_time;
+    TIMESTAMP_T current_time;
+    SIZE_T processed;
+    SIZE_T parallelism;
+    SIZE_T replica_id;
     util::Sampler latency_sampler;
 
 public:
     // Constructor
-    Sink_Functor(const long _sampling,
-                 const unsigned long _app_start_time):
+    Sink_Functor(const SIZE_T _sampling,
+                 const TIMESTAMP_T _app_start_time):
                  sampling(_sampling),
                  app_start_time(_app_start_time),
                  current_time(_app_start_time),
@@ -68,7 +68,7 @@ public:
             }
             // always evaluate latency when compiling with FF_BOUNDED_BUFFER MACRO set
             current_time = current_time_nsecs();
-            unsigned long tuple_latency = (current_time - rc.getCurrentTimestamp()) / 1e03;
+            TIMESTAMP_T tuple_latency = (current_time - rc.getCurrentTimestamp()) / 1e03;
             processed++;
             latency_sampler.add(tuple_latency, current_time);
 #if 0

@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -36,16 +36,16 @@ using namespace wf;
 class Detector_Functor
 {
 private:
-    size_t processed;
-    size_t outliers;
-    unsigned long app_start_time;
-    unsigned long current_time;
-    size_t parallelism;
-    size_t replica_id;
+    SIZE_T processed;
+    SIZE_T outliers;
+    TIMESTAMP_T app_start_time;
+    TIMESTAMP_T current_time;
+    SIZE_T parallelism;
+    SIZE_T replica_id;
 
 public:
     // Constructor
-    Detector_Functor(const unsigned long _app_start_time):
+    Detector_Functor(const TIMESTAMP_T _app_start_time):
                      processed(0),
                      outliers(0),
                      app_start_time(_app_start_time),

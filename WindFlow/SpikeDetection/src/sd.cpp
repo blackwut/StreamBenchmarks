@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -46,7 +46,7 @@ using record_t = tuple<string, string, int, int, double, double, double, double>
 vector<record_t> parsed_file; // contains data extracted from the input file
 vector<tuple_t> dataset; // contains all the tuples in memory
 unordered_map<size_t, uint64_t> key_occ; // contains the number of occurrences of each key device_id
-atomic<long> sent_tuples; // total number of tuples sent by all the sources
+atomic<SIZE_T> sent_tuples; // total number of tuples sent by all the sources
 
 // parse_dataset function
 void parse_dataset(const string &file_path)
@@ -147,8 +147,8 @@ int main(int argc, char* argv[])
     bool chaining = false;
     size_t batch_size = 0;
     int num_keys = 0;
-    if (argc == 11 || argc == 12) {
-        while ((option = getopt_long(argc, argv, "r:k:s:p:b:c:", long_opts, &index)) != -1) {
+    if (argc == 11 || argc == 12 || argc == 13) {
+        while ((option = getopt_long(argc, argv, "r:k:s:p:b:c:t:", long_opts, &index)) != -1) {
             file_path = _input_file;
             switch (option) {
                 case 'r': {
@@ -192,7 +192,12 @@ int main(int argc, char* argv[])
                     chaining = true;
                     break;
                 }
+                case 't': {
+                    app_run_time = atoi(optarg) * 1000000000L;
+                    break;
+                }
                 default: {
+                    cout << option << " " << optarg << endl;
                     printf("Error in parsing the input arguments\n");
                     exit(EXIT_FAILURE);
                 }
@@ -306,5 +311,42 @@ int main(int argc, char* argv[])
     cout << "Measured throughput: " << (int) throughput << " tuples/second" << endl;
     cout << "Dumping metrics" << endl;
     util::metric_group.dump_all();
+
+    bool print_header = false;
+    ifstream in_file("results.txt");
+    if (in_file.peek() == std::ifstream::traits_type::eof()) {
+        print_header = true;
+    }
+    in_file.close();
+
+    ofstream out_file;
+    out_file.open("results.txt", ios_base::app);
+    if (print_header) {
+        out_file << "Application" << ","
+                 << "Source" << ","
+                 << "Average" << ","
+                 << "Detector" << ","
+                 << "Sink" << ","
+                 << "BatchSize" << ","
+                 << "Sampling" << ","
+                 << "Runtime (s)" << ","
+                 << "Throughput (t/s)" << ","
+                 << "Time (s)" << endl;
+    }
+
+    out_file << fixed
+             << "SpikeDetection" << ","
+             << source_par_deg << ","
+             << average_par_deg << ","
+             << detector_par_deg << ","
+             << sink_par_deg << ","
+             << batch_size << ","
+             << sampling << ","
+             << app_run_time / 1000000000L << ","
+             << throughput << ","
+             << elapsed_time_seconds << endl;
+
+    out_file.close();
+
     return 0;
 }

@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -28,6 +28,7 @@
 #include "../util/tuple.hpp"
 #include "../util/constants.hpp"
 #include "../util/cli_util.hpp"
+#include "../util/common.hpp"
 
 using namespace std;
 using namespace ff;
@@ -37,9 +38,9 @@ using namespace wf;
 class Incremental_Average_Calculator
 {
 private:
-    unordered_map<int, deque<double>> win_values;
-    size_t win_size;
-    unordered_map<int, double> win_results;
+    unordered_map<SIZE_T, deque<FLOAT_T>> win_values;
+    SIZE_T win_size;
+    unordered_map<SIZE_T, FLOAT_T> win_results;
 
 public:
     // Constructor
@@ -47,7 +48,7 @@ public:
                                    win_size(_moving_avg_win_size) {}
 
     // compute method
-    double compute(int device_id, double next_value)
+    FLOAT_T compute(SIZE_T device_id, FLOAT_T next_value)
     {
         if (win_values.find(device_id) != win_values.end()) {
             if (win_values.at(device_id).size() > win_size - 1) {
@@ -59,7 +60,7 @@ public:
             return win_results.at(device_id) / win_values.at(device_id).size();
         }
         else { // device_id is not present
-            win_values.insert(make_pair(device_id, deque<double>()));
+            win_values.insert(make_pair(device_id, deque<FLOAT_T>()));
             win_values.at(device_id).push_back(next_value);
             win_results.insert(make_pair(device_id, next_value));
             return next_value;
@@ -74,17 +75,17 @@ public:
 class Average_Calculator_Map_Functor
 {
 private:
-    size_t processed;
+    SIZE_T processed;
     Incremental_Average_Calculator mean_calculator;
-    unordered_map<size_t, uint64_t> keys;
-    unsigned long app_start_time;
-    unsigned long current_time;
-    size_t parallelism;
-    size_t replica_id;
+    unordered_map<SIZE_T, KEY_T> keys;
+    TIMESTAMP_T app_start_time;
+    TIMESTAMP_T current_time;
+    SIZE_T parallelism;
+    SIZE_T replica_id;
 
 public:
     // Constructor
-    Average_Calculator_Map_Functor(const unsigned long _app_start_time):
+    Average_Calculator_Map_Functor(const TIMESTAMP_T _app_start_time):
                                    processed(0),
                                    app_start_time(_app_start_time),
                                    current_time(_app_start_time) {}

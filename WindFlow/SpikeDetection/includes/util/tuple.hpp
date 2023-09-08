@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -25,16 +25,17 @@
 #define SPIKEDETECTION_TUPLE_HPP
 
 #include<windflow.hpp>
+#include "common.hpp"
 
 using namespace std;
 
 // tuple_t struct
 struct tuple_t
 {
-    double property_value;
-    double incremental_average;
-    size_t key;
-    // uint64_t ts;
+    FLOAT_T property_value;
+    FLOAT_T incremental_average;
+    KEY_T key;
+    // TIMESTAMP_T ts;
 
     // Default Constructor
     tuple_t():
@@ -43,9 +44,9 @@ struct tuple_t
             key(0) {}
 
     // Constructor II
-    tuple_t(double _property_value,
-            double _incremental_average,
-            size_t _key):
+    tuple_t(FLOAT_T _property_value,
+            FLOAT_T _incremental_average,
+            KEY_T _key):
             property_value(_property_value),
             incremental_average(_incremental_average),
             key(_key) {}

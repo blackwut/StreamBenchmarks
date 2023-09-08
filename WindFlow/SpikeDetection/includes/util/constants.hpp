@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -25,11 +25,12 @@
 #define SPIKEDETECTION_CONSTANTS_HPP
 
 #include<string>
+#include "common.hpp"
 
 using namespace std;
 
 // application run time (source generates the stream for app_run_time seconds, then sends out EOS)
-unsigned long app_run_time = 60 * 1000000000L; // 60 seconds
+TIMESTAMP_T app_run_time = 1 * 1000000000L; // 60 seconds
 
 // components and topology name
 const string topology_name = "SpikeDetection";
@@ -45,9 +46,9 @@ typedef enum { DATE_FIELD, TIME_FIELD, EPOCH_FIELD, DEVICE_ID_FIELD, TEMP_FIELD,
 typedef enum { TEMPERATURE, HUMIDITY, LIGHT, VOLTAGE } monitored_field;
 
 // model parameters
-size_t _moving_avg_win_size = 1000;
+SIZE_T _moving_avg_win_size = 16;
 monitored_field _field = TEMPERATURE;
-double _threshold = 0.25; // <-- original value was 0.025
+FLOAT_T _threshold = 0.025; // <-- original value was 0.025
 const string _input_file = "../../Datasets/SD/sensors.dat";
 
 #endif //SPIKEDETECTION_CONSTANTS_HPP
