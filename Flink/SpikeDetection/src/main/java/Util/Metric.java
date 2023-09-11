@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -50,6 +50,36 @@ public class Metric implements Serializable {
     // add method
     public void add(double value) {
         descriptiveStatistics.addValue(value);
+    }
+
+    // get N method
+    public long getN() {
+        return descriptiveStatistics.getN();
+    }
+
+    // getTotal method
+    public long getTotal() {
+        return total;
+    }
+
+    // get mean method
+    public double getMean() {
+        return descriptiveStatistics.getMean();
+    }
+
+    // get min method
+    public double getMin() {
+        return descriptiveStatistics.getMin();
+    }
+
+    // get max method
+    public double getMax() {
+        return descriptiveStatistics.getMax();
+    }
+
+    // get percentile method
+    public double getPercentile(double percentile) {
+        return descriptiveStatistics.getPercentile(percentile);
     }
 
     // setTotal method

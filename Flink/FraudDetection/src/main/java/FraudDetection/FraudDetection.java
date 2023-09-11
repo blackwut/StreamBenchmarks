@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -41,12 +41,16 @@ import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
-/** 
+import java.io.File;
+import java.io.FileWriter;
+import Util.Metric;
+
+/**
  *  @author  Gabriele Mencagli
  *  @version August 2019
- *  
+ *
  *  The topology entry class.
- */ 
+ */
 public class FraudDetection {
     private static final Logger LOG = Log.get(FraudDetection.class);
 
@@ -174,8 +178,66 @@ public class FraudDetection {
                 double throughput = (double) (ThroughputCounter.getValue() / result.getNetRuntime(TimeUnit.SECONDS));
                 LOG.info("Measured throughput: " + throughput + " tuples/second");
                 // dump the metrics
-                LOG.info("Dumping metrics");
-                MetricGroup.dumpAll();
+                // LOG.info("Dumping metrics");
+                // MetricGroup.dumpAll();
+
+                boolean print_header = false;
+                String csvFile = "results.csv";
+                File file = new File(csvFile);
+                if (!file.exists()) {
+                    file.createNewFile();
+                    print_header = true;
+                }
+
+                FileWriter writer = new FileWriter(file, true);
+                if (print_header) {
+                    writer.write("Application" + "," +
+                                 "Source" + "," +
+                                 "Predictor" + "," +
+                                 "Sink" + "," +
+                                 "BatchSize" + "," +
+                                 "Sampling" + "," +
+                                 "Runtime (s)" + "," +
+                                 "Throughput (t/s)" + "," +
+                                 "Time (s)" + "," +
+                                 "Samples" + "," +
+                                 "Total" + "," +
+                                 "Mean" + "," +
+                                 "0" + "," +
+                                 "5" + "," +
+                                 "25" + "," +
+                                 "50" + "," +
+                                 "75" + "," +
+                                 "95" + "," +
+                                 "100"
+                                 + "\n");
+                }
+
+                Metric latencyMetric = MetricGroup.getMetric("latency");
+
+                // write results into the file
+                writer.write(topology_name + "," +
+                             source_par_deg + "," +
+                             predictor_par_deg + "," +
+                             sink_par_deg + "," +
+                             0 + "," +
+                             sampling + "," +
+                             60 + "," +
+                             throughput + "," +
+                             result.getNetRuntime(TimeUnit.SECONDS) + "," +
+                             latencyMetric.getN() + "," +
+                             latencyMetric.getTotal() + "," +
+                             latencyMetric.getMean() + "," +
+                             latencyMetric.getMin() + "," +
+                             latencyMetric.getPercentile(5) + "," +
+                             latencyMetric.getPercentile(25) + "," +
+                             latencyMetric.getPercentile(50) + "," +
+                             latencyMetric.getPercentile(75) + "," +
+                             latencyMetric.getPercentile(95) + "," +
+                             latencyMetric.getMax()
+                             + "\n");
+                writer.flush();
+                writer.close();
             }
             catch (Exception e) {
                 LOG.error(e.toString());

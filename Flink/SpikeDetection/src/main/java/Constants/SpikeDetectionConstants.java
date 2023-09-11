@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -23,16 +23,16 @@
 
 package Constants;
 
-/** 
+/**
  *  @author  Alessandra Fais
  *  @version May 2019
- *  
+ *
  *  Constants peculiar of the SpikeDetection application.
- */ 
+ */
 public interface SpikeDetectionConstants extends BaseConstants {
     String DEFAULT_PROPERTIES = "/spikedetection/sd.properties";
     String DEFAULT_TOPO_NAME = "SpikeDetection";
-    double DEFAULT_THRESHOLD = 0.03d;
+    float DEFAULT_THRESHOLD = 0.025f;
 
     interface Conf {
         String RUNTIME = "sd.runtime_sec";
@@ -41,7 +41,7 @@ public interface SpikeDetectionConstants extends BaseConstants {
         String MOVING_AVERAGE_WINDOW = "sd.moving_average.window";
         String SPIKE_DETECTOR_THRESHOLD = "sd.spike_detector.threshold";
     }
-    
+
     interface Component extends BaseComponent {
         String MOVING_AVERAGE = "moving_average";
         String SPIKE_DETECTOR = "spike_detector";

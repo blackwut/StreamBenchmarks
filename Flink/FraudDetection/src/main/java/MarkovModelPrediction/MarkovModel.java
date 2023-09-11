@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -33,7 +33,7 @@ import java.util.Scanner;
  */
 public class MarkovModel {
     private List<String> states;
-    private double[][] stateTransitionProb;
+    private float[][] stateTransitionProb;
     private int numStates;
 
     public MarkovModel(String model) {
@@ -48,7 +48,7 @@ public class MarkovModel {
                 String[] items = line.split(",");
                 states = Arrays.asList(items);
                 numStates = items.length;
-                stateTransitionProb = new double[numStates][numStates];
+                stateTransitionProb = new float[numStates][numStates];
             } else {
                 //populate state transtion probability
                 deseralizeTableRow(stateTransitionProb, line, ",", row, numStates);
@@ -66,13 +66,13 @@ public class MarkovModel {
      * @param row
      * @param numCol
      */
-    private void deseralizeTableRow(double[][] table, String data, String delim, int row, int numCol) {
+    private void deseralizeTableRow(float[][] table, String data, String delim, int row, int numCol) {
         String[] items = data.split(delim);
         if (items.length != numCol) {
             throw new IllegalArgumentException("SchemaRecord serialization failed, number of tokens in string does not match with number of columns");
         }
         for (int c = 0; c < numCol; ++c) {
-            table[row][c] = Double.parseDouble(items[c]);
+            table[row][c] = Float.parseFloat(items[c]);
         }
     }
 
@@ -80,7 +80,7 @@ public class MarkovModel {
         return states;
     }
 
-    public double[][] getStateTransitionProb() {
+    public float[][] getStateTransitionProb() {
         return stateTransitionProb;
     }
 

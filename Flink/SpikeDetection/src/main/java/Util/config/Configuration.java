@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -37,7 +37,7 @@ public class Configuration extends Config {
     public static final String METRICS_INTERVAL_VALUE = "metrics.interval.value";
     public static final String METRICS_INTERVAL_UNIT  = "metrics.interval.unit";
     public static final String METRICS_OUTPUT         = "metrics.output";
-    
+
     public String getString(String key) {
         String val = null;
         Object obj = get(key);
@@ -66,7 +66,7 @@ public class Configuration extends Config {
     public int getInt(String key) {
         int val = 0;
         Object obj = get(key);
-        
+
         if (null != obj) {
         if (obj instanceof Integer) {
             val = (Integer)obj;
@@ -84,7 +84,7 @@ public class Configuration extends Config {
         } else {
             throw new IllegalArgumentException("Nothing found in configuration for " + key);
         }
-        
+
         return val;
     }
 
@@ -129,15 +129,15 @@ public class Configuration extends Config {
         return val;
     }
 
-    public double getDouble(String key) {
-        double  val = 0;
+    public float getFloat(String key) {
+        float  val = 0;
         Object obj = get(key);
         if (null != obj) {
-            if (obj instanceof Double) {
-                val = (Double)obj;
+            if (obj instanceof Float) {
+                val = (Float)obj;
             } else if (obj instanceof String) {
                 try {
-                    val = Double.parseDouble((String)obj);
+                    val = Float.parseFloat((String)obj);
                 } catch (NumberFormatException ex) {
                     throw new IllegalArgumentException("String value not found in configuration for " + key);
                 }
@@ -150,10 +150,10 @@ public class Configuration extends Config {
         return val;
     }
 
-    public double getDouble(String key, double def) {
-        double val = 0;
+    public float getFloat(String key, float def) {
+        float val = 0;
         try {
-            val = getDouble(key);
+            val = getFloat(key);
         } catch (Exception ex) {
             val = def;
         }
@@ -186,14 +186,14 @@ public class Configuration extends Config {
         }
         return val;
     }
-    
+
     public int[] getIntArray(String key, int[] def) {
         return getIntArray(key, ",", def);
     }
-    
+
     public int[] getIntArray(String key, String separator, int[] def) {
         int[] values = null;
-        
+
         try {
             values = getIntArray(key, separator);
         } catch (IllegalArgumentException ex) {
@@ -202,7 +202,7 @@ public class Configuration extends Config {
 
         return values;
     }
-    
+
     public int[] getIntArray(String key, String separator) {
         String value   = getString(key);
         String[] items = value.split(separator);
@@ -216,28 +216,28 @@ public class Configuration extends Config {
                         + key + " cannot be parsed to an Integer array", ex);
             }
         }
-            
+
         return values;
     }
 
     public boolean exists(String key) {
         return containsKey(key);
     }
-    
+
     public static Configuration fromMap(Map map) {
         Configuration config = new Configuration();
-        
+
         for (Object k : map.keySet()) {
             String key   = (String) k;
             Object value = map.get(key);
-            
+
             if (value instanceof String) {
                 String str = (String) value;
-                
+
                 if (DataTypeUtils.isInteger(str)) {
                     config.put(key, Integer.parseInt(str));
                 } else if (NumberUtils.isNumber(str)) {
-                    config.put(key, Double.parseDouble(str));
+                    config.put(key, Float.parseFloat(str));
                 } else if (value.equals("true") || value.equals("false")) {
                     config.put(key, Boolean.parseBoolean(str));
                 } else {
@@ -247,52 +247,52 @@ public class Configuration extends Config {
                 config.put(key, value);
             }
         }
-        
+
         return config;
     }
-    
+
     public static Configuration fromProperties(Properties properties) {
         Configuration config = new Configuration();
 
         for (String key : properties.stringPropertyNames()) {
             config.put(key, parseString(properties.getProperty(key)));
         }
-        
+
         return config;
     }
-    
+
     public static Configuration fromStr(String str) {
         Map<String, String> map = strToMap(str);
         Configuration config = new Configuration();
-        
+
         for (String key : map.keySet()) {
             config.put(key, parseString(map.get(key)));
         }
-        
+
         return config;
     }
-    
+
     public static Map<String, String> strToMap(String str) {
         Map<String, String> map = new HashMap<>();
         String[] arguments = str.split(",");
-        
+
         for (String arg : arguments) {
             String[] kv = arg.split("=");
             map.put(kv[0].trim(), kv[1].trim());
         }
-        
+
         return map;
     }
-    
+
     private static Object parseString(String value) {
         if (DataTypeUtils.isInteger(value)) {
             return Integer.parseInt(value);
         } else if (NumberUtils.isNumber(value)) {
-            return Double.parseDouble(value);
+            return Float.parseFloat(value);
         } else if (value.equals("true") || value.equals("false")) {
             return Boolean.parseBoolean(value);
         }
-        
+
         return value;
     }
 }

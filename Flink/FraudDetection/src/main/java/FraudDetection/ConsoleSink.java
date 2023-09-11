@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -36,12 +36,12 @@ import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
-/** 
+/**
  *  @author  Gabriele Mencagli
  *  @version August 2019
- *  
+ *
  *  Sink node that receives and prints the results.
- */ 
+ */
 public class ConsoleSink extends RichSinkFunction<Output_Event> {
     private static final Logger LOG = Log.get(ConsoleSink.class);
     private long t_start;
@@ -71,12 +71,12 @@ public class ConsoleSink extends RichSinkFunction<Output_Event> {
     @Override
     public void invoke(Output_Event input, Context context) throws Exception {
         String entityID = input.entityID;
-        double score = input.score;
+        float score = input.score;
         long timestamp = input.ts;
         //LOG.debug("[Sink] outlier: entityID " + entityID + ", score " + score);
         // evaluate latency
         long now = System.nanoTime();
-        latency.add((double)(now - timestamp) / 1e3, now);
+        latency.add((float)(now - timestamp) / 1e3, now);
         processed++;
         t_end = System.nanoTime();
     }

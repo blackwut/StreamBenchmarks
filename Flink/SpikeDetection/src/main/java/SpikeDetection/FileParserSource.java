@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -43,19 +43,19 @@ import org.apache.flink.configuration.Configuration;
 import Constants.SpikeDetectionConstants.DatasetParsing;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
 
-/** 
+/**
  *  @author  Gabriele Mencagli
  *  @version August 2019
- *  
+ *
  *  The spout is in charge of reading the input data file containing
  *  measurements from a set of sensor devices, parsing it
  *  and generating the stream of records toward the MovingAverageCalculator.
- *  
+ *
  *  Format of the input file:
  *  <date:yyyy-mm-dd, time:hh:mm:ss.xxx, epoch:int, deviceID:int, temperature:real, humidity:real, light:real, voltage:real>
- *  
+ *
  *  Data example can be found here: http://db.csail.mit.edu/labdata/labdata.html
- */ 
+ */
 public class FileParserSource extends RichParallelSourceFunction<Source_Event> {
     private static final Logger LOG = Log.get(FileParserSource.class);
     private String file_path;
@@ -82,11 +82,11 @@ public class FileParserSource extends RichParallelSourceFunction<Source_Event> {
     private ArrayList<String> time;
     private ArrayList<Integer> epoc;
     private ArrayList<String> devices;
-    private ArrayList<Double> temperature;
-    private ArrayList<Double> humidity;
-    private ArrayList<Double> light;
-    private ArrayList<Double> voltage;
-    private ArrayList<Double> data;
+    private ArrayList<Float> temperature;
+    private ArrayList<Float> humidity;
+    private ArrayList<Float> light;
+    private ArrayList<Float> voltage;
+    private ArrayList<Float> data;
     private Configuration config;
 
     // Constructor
@@ -178,10 +178,10 @@ public class FileParserSource extends RichParallelSourceFunction<Source_Event> {
                     time.add(fields[DatasetParsing.TIME_FIELD]);
                     epoc.add(new Integer(fields[DatasetParsing.EPOCH_FIELD]));
                     devices.add(fields[DatasetParsing.DEVICEID_FIELD]);
-                    temperature.add(new Double(fields[DatasetParsing.TEMP_FIELD]));
-                    humidity.add(new Double(fields[DatasetParsing.HUMID_FIELD]));
-                    light.add(new Double(fields[DatasetParsing.LIGHT_FIELD]));
-                    voltage.add(new Double(fields[DatasetParsing.VOLT_FIELD]));
+                    temperature.add(new Float(fields[DatasetParsing.TEMP_FIELD]));
+                    humidity.add(new Float(fields[DatasetParsing.HUMID_FIELD]));
+                    light.add(new Float(fields[DatasetParsing.LIGHT_FIELD]));
+                    voltage.add(new Float(fields[DatasetParsing.VOLT_FIELD]));
                     LOG.debug("[Source] tuple: deviceID " + fields[DatasetParsing.DEVICEID_FIELD] +
                             ", property " + value_field + " " + fields[value_field_key]);
                     LOG.debug("[Source] fields: " +

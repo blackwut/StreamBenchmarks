@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -48,24 +48,24 @@ public class Tuple  implements WritableComparable<Tuple> {
 	public static final byte STRING = 6;
 	public static final byte BYTE_ARRAY = 7;
 	public static final byte TUPLE = 8;
-	
+
 	private List<Object> fields;
 	private String delim = ",";
-	
+
 	/**
-	 * 
+	 *
 	 */
 	public Tuple() {
 		fields = new ArrayList<Object>();
 	}
-	
+
 	/**
 	 * @param fields
 	 */
 	public Tuple(List<Object> fields) {
 		this.fields = fields;
 	}
-	
+
 	/**
 	 * creates clone
 	 * @return
@@ -82,7 +82,7 @@ public class Tuple  implements WritableComparable<Tuple> {
 	public void initialize() {
 		fields.clear();
 	}
-	
+
 	/**
 	 * gets size
 	 * @return
@@ -90,7 +90,7 @@ public class Tuple  implements WritableComparable<Tuple> {
 	public int getSize() {
 		return fields.size();
 	}
-	
+
 	/**
 	 * add one or more elements
 	 * @param fieldList
@@ -126,7 +126,7 @@ public class Tuple  implements WritableComparable<Tuple> {
 			add(types[i],  fields[i]) ;
 		}
 	}
-	
+
 	/**
 	 * adds string serilized elements
 	 * @param type
@@ -134,7 +134,7 @@ public class Tuple  implements WritableComparable<Tuple> {
 	 */
 	public void add(byte type, String field) {
 		Object typedField = null;
-		
+
 		if (type ==  BYTE ) {
 			typedField = Byte.decode(field);
 		} else if (type ==  BOOLEAN ) {
@@ -158,7 +158,7 @@ public class Tuple  implements WritableComparable<Tuple> {
 		}  else {
 			throw new IllegalArgumentException("Failed adding element to tuple, unknown element type");
 		}
-		
+
 		if (null != typedField){
 			fields.add(typedField);
 		}
@@ -172,7 +172,7 @@ public class Tuple  implements WritableComparable<Tuple> {
 	public void set(int index, Object field) {
 		fields.add(index, field);
 	}
-	
+
 	/**
 	 * gets specific element
 	 * @param index
@@ -181,7 +181,7 @@ public class Tuple  implements WritableComparable<Tuple> {
 	public Object get(int index) {
 		return fields.get(index);
 	}
-	
+
 	/**
 	 * gets string from specific index
 	 * @param index
@@ -234,20 +234,20 @@ public class Tuple  implements WritableComparable<Tuple> {
 	}
 
 	/**
-	 * gets double from specific index
+	 * gets float from specific index
 	 * @param index
 	 * @return
 	 */
-	public double getDouble(int index) {
-		return (Double)fields.get(index);
+	public float getFloat(int index) {
+		return (Float)fields.get(index);
 	}
-	
+
 	/**
-	 * gets last element as double
+	 * gets last element as float
 	 * @return
 	 */
-	public double getLastAsDouble() {
-		return (Double)fields.get(fields.size()-1);
+	public float getLastAsFloat() {
+		return (Float)fields.get(fields.size()-1);
 	}
 
 	/**
@@ -275,9 +275,9 @@ public class Tuple  implements WritableComparable<Tuple> {
 	 * @param index
 	 * @return
 	 */
-	public boolean isDouble(int index) {
+	public boolean isFloat(int index) {
 		Object obj = fields.get(index);
-		return obj instanceof Double;
+		return obj instanceof Float;
 	}
 
 	/* (non-Javadoc)
@@ -287,10 +287,10 @@ public class Tuple  implements WritableComparable<Tuple> {
 	public void readFields(DataInput in) throws IOException {
 		initialize();
 		int numFields = in.readInt();
-		
+
 		for(int i = 0;  i < numFields;  ++i) {
 			byte type = in.readByte();
-			
+
 			if (type ==  BYTE ) {
 				fields.add(in.readByte());
 			} else if (type ==  BOOLEAN ) {
@@ -311,7 +311,7 @@ public class Tuple  implements WritableComparable<Tuple> {
 				in.readFully(bytes);
 				fields.add(bytes);
 			} else if (type ==  TUPLE) {
-				Tuple childTuple = new Tuple(); 
+				Tuple childTuple = new Tuple();
 				childTuple.readFields(in);
 				fields.add(childTuple);
 			} else {
@@ -326,28 +326,28 @@ public class Tuple  implements WritableComparable<Tuple> {
 	@Override
 	public void write(DataOutput out) throws IOException {
 		out.writeInt(fields.size());
-		
+
 		for(Object field : fields) {
 			if (field instanceof Byte){
-				out.writeByte(BYTE);	
+				out.writeByte(BYTE);
 				out.writeByte((Byte)field);
 			} else if (field instanceof Boolean){
-				out.writeByte(BOOLEAN);	
+				out.writeByte(BOOLEAN);
 				out.writeBoolean((Boolean)field);
 			} else if (field instanceof Integer){
-				out.writeByte(INT);	
+				out.writeByte(INT);
 				out.writeInt((Integer)field);
 			} else if (field instanceof Long){
-				out.writeByte(LONG);	
+				out.writeByte(LONG);
 				out.writeLong((Long)field);
 			} else if (field instanceof Float){
-				out.writeByte(FLOAT);	
+				out.writeByte(FLOAT);
 				out.writeFloat((Float)field);
 			} else if (field instanceof Double){
-				out.writeByte(DOUBLE);	
+				out.writeByte(DOUBLE);
 				out.writeDouble((Double)field);
 			} else if (field instanceof String){
-				out.writeByte(STRING);	
+				out.writeByte(STRING);
 				out.writeUTF((String)field);
 			} else if (field instanceof byte[]){
 				byte[] bytes = (byte[])field;
@@ -369,7 +369,7 @@ public class Tuple  implements WritableComparable<Tuple> {
 	public int hashCode() {
 		return fields.hashCode();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
@@ -388,30 +388,30 @@ public class Tuple  implements WritableComparable<Tuple> {
 			for(int i = 0; i <  fields.size() && compared == 0; ++i) {
 				Object field = fields.get(i);
 				if (field instanceof Byte){
-					compared = ((Byte)field).compareTo((Byte)that.fields.get(i));	
+					compared = ((Byte)field).compareTo((Byte)that.fields.get(i));
 				} else if (field instanceof Boolean){
-					compared = ((Boolean)field).compareTo((Boolean)that.fields.get(i));	
+					compared = ((Boolean)field).compareTo((Boolean)that.fields.get(i));
 				} else if (field instanceof Integer){
-					compared = ((Integer)field).compareTo((Integer)that.fields.get(i));	
+					compared = ((Integer)field).compareTo((Integer)that.fields.get(i));
 				} else if (field instanceof Long){
-					compared = ((Long)field).compareTo((Long)that.fields.get(i));	
+					compared = ((Long)field).compareTo((Long)that.fields.get(i));
 				} else if (field instanceof Float){
-					compared = ((Float)field).compareTo((Float)that.fields.get(i));	
+					compared = ((Float)field).compareTo((Float)that.fields.get(i));
 				} else if (field instanceof Double){
-					compared = ((Double)field).compareTo((Double)that.fields.get(i));	
+					compared = ((Double)field).compareTo((Double)that.fields.get(i));
 				} else if (field instanceof String){
-					compared = ((String)field).compareTo((String)that.fields.get(i));	
+					compared = ((String)field).compareTo((String)that.fields.get(i));
 				}  else {
 					throw new IllegalArgumentException("Failed in compare, unknown element type in tuple  ");
 				}
 			}
 		} else {
-			throw new IllegalArgumentException("Can not compare tuples of unequal length this:"  + 
+			throw new IllegalArgumentException("Can not compare tuples of unequal length this:"  +
 					fields.size() + " that:" +  that.fields.size());
 		}
 		return compared;
 	}
-	
+
 	/**
 	 * comparison based on all but the last element
 	 * @param other
@@ -422,7 +422,7 @@ public class Tuple  implements WritableComparable<Tuple> {
 		Tuple subThat = new Tuple(other.fields.subList(0,other.fields.size()-1));
 		return subThis.compareTo(subThat);
 	}
-	
+
 	/**
 	 * hash code based on all but the last element
 	 * @return
@@ -431,7 +431,7 @@ public class Tuple  implements WritableComparable<Tuple> {
 		Tuple subThis = new Tuple(fields.subList(0,fields.size()-1));
 		return subThis.hashCode();
 	}
-	
+
 	/**
 	 * hash based on partial list
 	 * @param subLength
@@ -450,7 +450,7 @@ public class Tuple  implements WritableComparable<Tuple> {
 	public boolean startsWith(Object obj) {
 		return obj.equals(fields.get(0));
 	}
-	
+
 	/**
 	 * sets delimeter
 	 * @param delim
@@ -470,10 +470,10 @@ public class Tuple  implements WritableComparable<Tuple> {
 			} else {
 				stBld.append(delim).append(fields.get(i).toString());
 			}
-		}		
+		}
 		return stBld.toString();
 	}
-	
+
 	/**
 	 * to string starting at given index
 	 * @param start
@@ -487,10 +487,10 @@ public class Tuple  implements WritableComparable<Tuple> {
 			} else {
 				stBld.append(delim).append(fields.get(i).toString());
 			}
-		}		
+		}
 		return stBld.toString();
 	}
-	
+
 	/**
 	 * creates tuple based on partial list of source tuple
 	 * @param start
@@ -501,12 +501,12 @@ public class Tuple  implements WritableComparable<Tuple> {
 		if (end < start) {
 			throw new IllegalArgumentException("end index is smaller that start index");
 		}
-		
+
 		Tuple subTuple = new Tuple();
 		for (int i = start; i < end; ++i) {
 			subTuple.add(get(i));
 		}
 		return subTuple;
 	}
-	
+
 }

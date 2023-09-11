@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -34,20 +34,20 @@ import Constants.SpikeDetectionConstants.Field;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 
-/** 
+/**
  *  @author  Gabriele Mencagli
  *  @version August 2019
- *  
+ *
  *  The bolt is in charge of detecting spikes in the measurements received by sensors
  *  with respect to a properly defined threshold.
- */ 
+ */
 public class SpikeDetector extends RichFlatMapFunction<Output_Event, Output_Event> {
     private static final Logger LOG = Log.get(SpikeDetector.class);
     private long t_start;
     private long t_end;
     private long processed;
     private int par_deg;
-    private double spike_threshold;
+    private float spike_threshold;
     private long spikes;
     private Configuration config;
 
@@ -63,15 +63,15 @@ public class SpikeDetector extends RichFlatMapFunction<Output_Event, Output_Even
         t_start = System.nanoTime(); // bolt start time in nanoseconds
         processed = 0;               // total number of processed tuples
         spikes = 0;                  // total number of spikes detected
-        spike_threshold = config.getDouble(Conf.SPIKE_DETECTOR_THRESHOLD, SpikeDetectionConstants.DEFAULT_THRESHOLD);
+        spike_threshold = config.getFloat(Conf.SPIKE_DETECTOR_THRESHOLD, SpikeDetectionConstants.DEFAULT_THRESHOLD);
     }
 
     // flatmap method
     @Override
     public void flatMap(Output_Event input, Collector<Output_Event> output) {
         String deviceID = input.deviceID;
-        double moving_avg_instant = input.moving_avg;
-        double next_property_value = input.value;
+        float moving_avg_instant = input.moving_avg;
+        float next_property_value = input.value;
         long timestamp = input.ts;
         if (Math.abs(next_property_value - moving_avg_instant) > spike_threshold * moving_avg_instant) {
             spikes++;

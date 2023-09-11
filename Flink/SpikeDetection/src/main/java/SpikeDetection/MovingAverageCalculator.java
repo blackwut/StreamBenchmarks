@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -35,20 +35,20 @@ import Constants.SpikeDetectionConstants.Field;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 
-/** 
+/**
  *  @author  Gabriele Mencagli
  *  @version August 2019
- *  
+ *
  *  The bolt is in charge of computing the average over a window of values.
  *  It manages one window for each device_id.
- *  
+ *
  *  See http://github.com/surajwaghulde/storm-example-projects
- */ 
+ */
 public class MovingAverageCalculator extends RichFlatMapFunction<Source_Event, Output_Event> {
     private static final Logger LOG = Log.get(MovingAverageCalculator.class);
     private int movingAverageWindow;
-    private Map<String, LinkedList<Double>> deviceIDtoStreamMap;
-    private Map<String, Double> deviceIDtoSumOfEvents;
+    private Map<String, LinkedList<Float>> deviceIDtoStreamMap;
+    private Map<String, Float> deviceIDtoSumOfEvents;
     private long t_start;
     private long t_end;
     private long processed;
@@ -75,9 +75,9 @@ public class MovingAverageCalculator extends RichFlatMapFunction<Source_Event, O
     @Override
     public void flatMap(Source_Event input, Collector<Output_Event> output) {
         String deviceID = input.deviceID;
-        double next_property_value = input.value;
+        float next_property_value = input.value;
         long timestamp = input.ts;
-        double moving_avg_instant = movingAverage(deviceID, next_property_value);
+        float moving_avg_instant = movingAverage(deviceID, next_property_value);
         output.collect(new Output_Event(deviceID, moving_avg_instant, next_property_value, timestamp));
         processed++;
         t_end = System.nanoTime();
@@ -94,27 +94,27 @@ public class MovingAverageCalculator extends RichFlatMapFunction<Source_Event, O
     }
 
     // movingAverage method
-    private double movingAverage(String deviceID, double nextDouble) {
-        LinkedList<Double> valueList = new LinkedList<>();
-        double sum = 0.0;
+    private float movingAverage(String deviceID, float nextFloat) {
+        LinkedList<Float> valueList = new LinkedList<>();
+        float sum = 0.0f;
         if (deviceIDtoStreamMap.containsKey(deviceID)) {
             valueList = deviceIDtoStreamMap.get(deviceID);
             sum = deviceIDtoSumOfEvents.get(deviceID);
             if (valueList.size() > movingAverageWindow - 1) {
-                double valueToRemove = valueList.removeFirst();
+                float valueToRemove = valueList.removeFirst();
                 sum -= valueToRemove;
             }
-            valueList.addLast(nextDouble);
-            sum += nextDouble;
+            valueList.addLast(nextFloat);
+            sum += nextFloat;
             deviceIDtoSumOfEvents.put(deviceID, sum);
             deviceIDtoStreamMap.put(deviceID, valueList);
             return sum / valueList.size();
         }
         else {
-            valueList.add(nextDouble);
+            valueList.add(nextFloat);
             deviceIDtoStreamMap.put(deviceID, valueList);
-            deviceIDtoSumOfEvents.put(deviceID, nextDouble);
-            return nextDouble;
+            deviceIDtoSumOfEvents.put(deviceID, nextFloat);
+            return nextFloat;
         }
     }
 }

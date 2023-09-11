@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -25,18 +25,18 @@ package SpikeDetection;
 
 public class Output_Event {
 	public String deviceID;
-	public double moving_avg;
-	public double value;
+	public float moving_avg;
+	public float value;
 	public long ts;
 
 	public Output_Event() {
 		deviceID = "";
-		moving_avg = 0d;
-		value = 0d;
+		moving_avg = 0;
+		value = 0;
 		ts = 0L;
 	}
 
-	public Output_Event(String _deviceID, double _moving_avg, double _value, long _ts) {
+	public Output_Event(String _deviceID, float _moving_avg, float _value, long _ts) {
 		deviceID = _deviceID;
 		moving_avg = _moving_avg;
 		value = _value;

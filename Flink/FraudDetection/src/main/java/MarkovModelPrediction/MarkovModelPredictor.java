@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -56,10 +56,10 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
     private int stateSeqWindowSize;
     private int stateOrdinal;
     private DetectionAlgorithm detectionAlgorithm;
-    private Map<String, Pair<Double, Double>> globalParams;
-    private double metricThreshold;
+    private Map<String, Pair<Float, Float>> globalParams;
+    private float metricThreshold;
     private int[] maxStateProbIndex;
-    private double[] entropy;
+    private float[] entropy;
 
     public MarkovModelPredictor(Configuration conf) {
         String mmKey = conf.getString(MARKOV_MODEL_KEY, null);
@@ -97,7 +97,7 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
             maxStateProbIndex = new int[markovModel.getNumStates()];
             for (int i = 0; i < markovModel.getNumStates(); ++i) {
                 int maxProbIndex = -1;
-                double maxProb = -1;
+                float maxProb = -1;
                 for (int j = 0; j < markovModel.getNumStates(); ++j) {
                     if (markovModel.getStateTransitionProb()[i][j] > maxProb) {
                         maxProb = markovModel.getStateTransitionProb()[i][j];
@@ -110,9 +110,9 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
             detectionAlgorithm = DetectionAlgorithm.EntropyReduction;
 
             //entropy per source state
-            entropy = new double[markovModel.getNumStates()];
+            entropy = new float[markovModel.getNumStates()];
             for (int i = 0; i < markovModel.getNumStates(); ++i) {
-                double ent = 0;
+                float ent = 0;
                 for (int j = 0; j < markovModel.getNumStates(); ++j) {
                     ent  += -markovModel.getStateTransitionProb()[i][j] * Math.log(markovModel.getStateTransitionProb()[i][j]);
                 }
@@ -126,13 +126,13 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
         }
 
         //metric threshold
-        metricThreshold = conf.getDouble(METRIC_THRESHOLD, 0.96);
+        metricThreshold = conf.getFloat(METRIC_THRESHOLD, 0.96f);
         //LOG.debug("[predictor] the threshold is: " + metricThreshold);
     }
 
     @Override
     public Prediction execute(String entityID, String record) {
-        double score = 0;
+        float score = 0;
 
         List<String> recordSeq = records.get(entityID);
         if (null == recordSeq) {
@@ -170,10 +170,10 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
                     stateSeq[j++] = recordSeq.get(i).split(",")[stateOrdinal];
                 }
 
-                Pair<Double,Double> params = globalParams.get(entityID);
+                Pair<Float,Float> params = globalParams.get(entityID);
 
                 if (null == params) {
-                    params = new Pair<>(0.0, 0.0);
+                    params = new Pair<>(0.0f, 0.0f);
                     globalParams.put(entityID, params);
                 }
 
@@ -209,9 +209,9 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
      * @param stateSeq
      * @return
      */
-    private double getLocalMetric(String[] stateSeq) {
-        double metric = 0;
-        double[] params = new double[2];
+    private float getLocalMetric(String[] stateSeq) {
+        float metric = 0;
+        float[] params = new float[2];
         params[0] = params[1] = 0;
 
         if (detectionAlgorithm == DetectionAlgorithm.MissProbability) {
@@ -231,9 +231,9 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
      * @param stateSeq
      * @return
      */
-    private double getGlobalMetric(String[] stateSeq, Pair<Double,Double> globParams) {
-        double metric = 0;
-        double[] params = new double[2];
+    private float getGlobalMetric(String[] stateSeq, Pair<Float,Float> globParams) {
+        float metric = 0;
+        float[] params = new float[2];
         params[0] = params[1] = 0;
 
         if (detectionAlgorithm == DetectionAlgorithm.MissProbability) {
@@ -254,7 +254,7 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
      * @param stateSeq
      * @return
      */
-    private void missProbability(String[] stateSeq, double[] params) {
+    private void missProbability(String[] stateSeq, float[] params) {
         int start = localPredictor? 1 :  stateSeq.length - 1;
         for (int i = start; i < stateSeq.length; ++i ){
             int prState = markovModel.getStates().indexOf(stateSeq[i -1]);
@@ -278,7 +278,7 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
      * @param stateSeq
      * @return
      */
-    private void missRate(String[] stateSeq, double[] params) {
+    private void missRate(String[] stateSeq, float[] params) {
         int start = localPredictor? 1 :  stateSeq.length - 1;
         for (int i = start; i < stateSeq.length; ++i ){
             int prState = markovModel.getStates().indexOf(stateSeq[i -1]);
@@ -292,7 +292,7 @@ public class MarkovModelPredictor extends ModelBasedPredictor {
      * @param stateSeq
      * @return
      */
-    private void entropyReduction(String[] stateSeq, double[] params) {
+    private void entropyReduction(String[] stateSeq, float[] params) {
         int start = localPredictor? 1 :  stateSeq.length - 1;
         for (int i = start; i < stateSeq.length; ++i ){
             int prState = markovModel.getStates().indexOf(stateSeq[i -1]);
