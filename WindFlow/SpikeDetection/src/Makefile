@@ -1,25 +1,23 @@
 # Author: Gabriele Mencagli
 # Date: 13/01/2020
 
-# Macos if
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S), Darwin)
 FF_ROOT         = $(HOME)/projects/fastflow
 WF_INCLUDES     = $(HOME)/projects/WindFlow/wf
-RAPIDJSON_INCS  = /opt/homebrew/Cellar/rapidjson/1.1.0/include
+RAPIDJSON_INCS  = -I /opt/homebrew/Cellar/rapidjson/1.1.0/include
 else
 FF_ROOT         = $(HOME)/fastflow
 WF_INCLUDES     = $(HOME)/WindFlow/wf
 RAPIDJSON_INCS  =
 endif
 
-
 INCLUDE_DIR     = ../includes
 OUT_DIR         = ../bin
 
 CXX             = g++
 CXXFLAGS        = -std=c++17
-INCLUDES        = -I $(FF_ROOT) -I $(WF_INCLUDES) -I $(INCLUDE_DIR) -I $(RAPIDJSON_INCS)
+INCLUDES        = -I $(FF_ROOT) -I $(WF_INCLUDES) -I $(INCLUDE_DIR) $(RAPIDJSON_INCS)
 MACRO           = -DFF_BOUNDED_BUFFER -DDEFAULT_BUFFER_CAPACITY=32786 -DNDEBUG
 OPTFLAGS        = -g -O3 -finline-functions
 LDFLAGS         = -pthread

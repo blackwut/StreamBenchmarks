@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
     bool chaining = false;
     size_t batch_size = 0;
     int num_keys = 0;
-    if (argc == 11 || argc == 12 || argc == 13) {
+    if (argc == 11 || argc == 12 || argc == 13 || argc == 14) {
         while ((option = getopt_long(argc, argv, "r:k:s:p:b:c:t:", long_opts, &index)) != -1) {
             file_path = _input_file;
             switch (option) {
@@ -309,18 +309,18 @@ int main(int argc, char* argv[])
     double elapsed_time_seconds = (end_time_main_usecs - start_time_main_usecs) / (1000000.0);
     double throughput = sent_tuples / elapsed_time_seconds;
     cout << "Measured throughput: " << (int) throughput << " tuples/second" << endl;
-    cout << "Dumping metrics" << endl;
-    util::metric_group.dump_all();
+    // cout << "Dumping metrics" << endl;
+    // util::metric_group.dump_all();
 
     bool print_header = false;
-    ifstream in_file("results.txt");
+    ifstream in_file("results.csv");
     if (in_file.peek() == std::ifstream::traits_type::eof()) {
         print_header = true;
     }
     in_file.close();
 
     ofstream out_file;
-    out_file.open("results.txt", ios_base::app);
+    out_file.open("results.csv", ios_base::app);
     if (print_header) {
         out_file << "Application" << ","
                  << "Source" << ","
@@ -331,8 +331,21 @@ int main(int argc, char* argv[])
                  << "Sampling" << ","
                  << "Runtime (s)" << ","
                  << "Throughput (t/s)" << ","
-                 << "Time (s)" << endl;
+                 << "Time (s)" << ","
+                 << "Samples" << ","
+                 << "Total" << ","
+                 << "Mean" << ","
+                 << "0" << ","
+                 << "5" << ","
+                 << "25" << ","
+                 << "50" << ","
+                 << "75" << ","
+                 << "95" << ","
+                 << "100"
+                 << endl;
     }
+
+    auto latency_metric = util::metric_group.get_metric("latency");
 
     out_file << fixed
              << "SpikeDetection" << ","
@@ -343,8 +356,19 @@ int main(int argc, char* argv[])
              << batch_size << ","
              << sampling << ","
              << app_run_time / 1000000000L << ","
-             << throughput << ","
-             << elapsed_time_seconds << endl;
+             << (size_t)throughput << ","
+             << elapsed_time_seconds << ","
+             << latency_metric.getN() << ","
+             << latency_metric.total() << ","
+             << latency_metric.mean() << ","
+             << latency_metric.min() << ","
+             << latency_metric.percentile(0.05) << ","
+             << latency_metric.percentile(0.25) << ","
+             << latency_metric.percentile(0.5) << ","
+             << latency_metric.percentile(0.75) << ","
+             << latency_metric.percentile(0.95) << ","
+             << latency_metric.max()
+             << endl;
 
     out_file.close();
 

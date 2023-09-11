@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -27,6 +27,7 @@
 #include <numeric>
 #include <rapidjson/prettywriter.h>
 #include <sstream>
+#include <iostream>
 
 using namespace rapidjson;
 
@@ -59,6 +60,8 @@ Metric MetricGroup::get_metric(std::string name)
     while (!samplers.empty()) {
         auto sampler = samplers.back();
         metric.total(sampler.total());
+
+        std::cout << "total: " << sampler.total() << std::endl;
 
         // add all the values from the sampler
         for (double value : sampler.values()) {
