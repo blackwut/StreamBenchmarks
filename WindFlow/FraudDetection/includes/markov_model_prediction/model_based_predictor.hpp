@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -31,11 +31,13 @@
 #include<list>
 #include<map>
 
+#include "../util/common.hpp"
+
 // Model_Based_Predictor class
 class Model_Based_Predictor
 {
 public:
-    virtual Prediction execute(size_t key, string record, string split_regex) = 0;
+    virtual Prediction execute(KEY_T key, string record, string split_regex) = 0;
 };
 
 // Markov_Model_Predictor class
@@ -48,14 +50,14 @@ private:
     size_t records_win_size; // number of records needed to close a window
     size_t state_position; // position of the state within a record string
     detection_algorithm alg; // algorithm used to detect the outliers
-    double threshold; // value used to detect outliers (states sequences for which the score is higher than the threshold)
+    FLOAT_T threshold; // value used to detect outliers (states sequences for which the score is higher than the threshold)
     int *max_state_prob_idx; // vector of maximum state probability index (valid only if algorithm is MISS_RATE)
-    double *entropy; // vector of entropy values (valid only if algorithm is ENTROPY_REDUCTION)
+    FLOAT_T *entropy; // vector of entropy values (valid only if algorithm is ENTROPY_REDUCTION)
 
     // get_local_metric method
-    double get_local_metric(const vector<string> &states_sequence)
+    FLOAT_T get_local_metric(const vector<string> &states_sequence)
     {
-        double params[2];
+        FLOAT_T params[2];
         params[0] = 0;
         params[1] = 0;
         // print states window
@@ -70,7 +72,7 @@ private:
     }
 
     // miss_probability method
-    void miss_probability(const vector<string> &states_sequence, double *params)
+    void miss_probability(const vector<string> &states_sequence, FLOAT_T *params)
     {
         for (int i = 1; i < states_sequence.size(); i++) {
             size_t prev_state_idx = markov_model.get_index_of(states_sequence.at(i - 1));
@@ -85,7 +87,7 @@ private:
     }
 
     // miss_rate_OR_entropy_reduction method
-    void miss_rate_OR_entropy_reduction(const vector<string> &states_sequence, double *params)
+    void miss_rate_OR_entropy_reduction(const vector<string> &states_sequence, FLOAT_T *params)
     {
         for (int i = 1; i < states_sequence.size(); i++) {
             size_t prev_state_idx = markov_model.get_index_of(states_sequence.at(i - 1));
@@ -110,7 +112,7 @@ public:
             max_state_prob_idx = new int[mm_num_states];
             for (int i = 0; i < mm_num_states; i++) {
                 int max_prob_idx = -1;
-                double max_prob = -1;
+                FLOAT_T max_prob = -1;
                 for (int j = 0; j < mm_num_states; j++) {
                     if (markov_model.get_state_trans_prob()[i][j] > max_prob) {
                         max_prob = markov_model.get_state_trans_prob()[i][j];
@@ -122,9 +124,9 @@ public:
         }
         else if (alg == ENTROPY_REDUCTION) {
             // entropy per source state
-            entropy = new double[mm_num_states];
+            entropy = new FLOAT_T[mm_num_states];
             for (int i = 0; i < mm_num_states; i++) {
-                double ent = 0;
+                FLOAT_T ent = 0;
                 for (int j = 0; j < mm_num_states; j++) {
                     ent += -markov_model.get_state_trans_prob()[i][j] * log(markov_model.get_state_trans_prob()[i][j]);
                 }
@@ -134,9 +136,9 @@ public:
     }
 
     // execute method
-    Prediction execute(size_t key, string record, string split_regex)
+    Prediction execute(KEY_T key, string record, string split_regex)
     {
-        double score = 0;
+        FLOAT_T score = 0;
         auto &this_records = records[key];
         this_records.push_back(record);
         if (this_records.size() > records_win_size) {
@@ -171,7 +173,7 @@ public:
     }
 
     // get_entropy method
-    double *get_entropy()
+    FLOAT_T *get_entropy()
     {
         return entropy;
     }

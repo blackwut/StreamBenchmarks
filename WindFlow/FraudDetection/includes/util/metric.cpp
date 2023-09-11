@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -44,6 +44,38 @@ void Metric::add(double value)
 void Metric::total(long total)
 {
     total_ = total;
+}
+
+long Metric::total()
+{
+    return total_;
+}
+
+long Metric::getN()
+{
+    return samples_.size();
+}
+
+double Metric::mean()
+{
+    return std::accumulate(samples_.begin(), samples_.end(), 0.0) / samples_.size();
+}
+
+double Metric::min()
+{
+    return *std::min_element(samples_.begin(), samples_.end());
+}
+
+double Metric::max()
+{
+    return *std::max_element(samples_.begin(), samples_.end());
+}
+
+double Metric::percentile(double percentile)
+{
+    auto pointer = samples_.begin() + samples_.size() * percentile;
+    std::nth_element(samples_.begin(), pointer, samples_.end());
+    return *pointer;
 }
 
 void Metric::dump()

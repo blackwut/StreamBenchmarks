@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -25,16 +25,16 @@
 #define FRAUDDETECTION_TUPLE_HPP
 
 #include<windflow.hpp>
-
+#include "common.hpp"
 using namespace std;
 
 // tuple_t struct
 struct tuple_t
 {
-    size_t key; // key attribute representing the entity_id
+    KEY_T key; // key attribute representing the entity_id
     string record; // transaction and the transaction type
     // uint64_t ts; // timestamp
-    double score; // score value
+    FLOAT_T score; // score value
 
     // Constructor
     tuple_t():

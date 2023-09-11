@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -37,7 +37,7 @@ using namespace std;
 using namespace ff;
 using namespace wf;
 
-using count_key_t = pair<size_t, uint64_t>;
+using count_key_t = pair<KEY_T, uint64_t>;
 using key_map_t = unordered_map<string, count_key_t>;
 
 // global variables
@@ -107,8 +107,8 @@ int main(int argc, char* argv[])
     bool chaining = false;
     size_t batch_size = 0;
     size_t num_keys = 0;
-    if (argc == 11 || argc == 12) {
-        while ((option = getopt_long(argc, argv, "r:k:s:p:b:c:", long_opts, &index)) != -1) {
+    if (argc == 11 || argc == 12 || argc == 13 || argc == 14) {
+        while ((option = getopt_long(argc, argv, "r:k:s:p:b:c:t:", long_opts, &index)) != -1) {
             file_path = _input_file;
             switch (option) {
                 case 'r': {
@@ -149,6 +149,10 @@ int main(int argc, char* argv[])
                 }
                 case 'c': {
                     chaining = true;
+                    break;
+                }
+                case 't': {
+                    app_run_time = atoi(optarg) * 1000000000L;
                     break;
                 }
                 default: {
@@ -203,7 +207,7 @@ int main(int argc, char* argv[])
         Filter predictor = Filter_Builder(predictor_functor)
                                 .withParallelism(predictor_par_deg)
                                 .withName(predictor_name)
-                                .withKeyBy([](const tuple_t &t) -> size_t { return t.key; })
+                                .withKeyBy([](const tuple_t &t) -> KEY_T { return t.key; })
                                 .withOutputBatchSize(batch_size)
                                 .build();
         Sink_Functor sink_functor(sampling, app_start_time);
@@ -229,7 +233,7 @@ int main(int argc, char* argv[])
         Filter predictor = Filter_Builder(predictor_functor)
                                 .withParallelism(predictor_par_deg)
                                 .withName(predictor_name)
-                                .withKeyBy([](const tuple_t &t) -> size_t { return t.key; })
+                                .withKeyBy([](const tuple_t &t) -> KEY_T { return t.key; })
                                 .build();
         Sink_Functor sink_functor(sampling, app_start_time);
         Sink sink = Sink_Builder(sink_functor)
@@ -251,7 +255,66 @@ int main(int argc, char* argv[])
     double elapsed_time_seconds = (end_time_main_usecs - start_time_main_usecs) / (1000000.0);
     double throughput = sent_tuples / elapsed_time_seconds;
     cout << "Measured throughput: " << (int) throughput << " tuples/second" << endl;
-    cout << "Dumping metrics" << endl;
-    util::metric_group.dump_all();
+    // cout << "Dumping metrics" << endl;
+    // util::metric_group.dump_all();
+
+    bool print_header = false;
+    ifstream in_file("results.csv");
+    if (in_file.peek() == std::ifstream::traits_type::eof()) {
+        print_header = true;
+    }
+    in_file.close();
+
+    ofstream out_file;
+    out_file.open("results.csv", ios_base::app);
+    if (print_header) {
+        out_file << "Application" << ","
+                 << "Source" << ","
+                 << "Predictor" << ","
+                 << "Sink" << ","
+                 << "BatchSize" << ","
+                 << "Sampling" << ","
+                 << "Runtime (s)" << ","
+                 << "Throughput (t/s)" << ","
+                 << "Time (s)" << ","
+                 << "Samples" << ","
+                 << "Total" << ","
+                 << "Mean" << ","
+                 << "0" << ","
+                 << "5" << ","
+                 << "25" << ","
+                 << "50" << ","
+                 << "75" << ","
+                 << "95" << ","
+                 << "100"
+                 << endl;
+    }
+
+    auto latency_metric = util::metric_group.get_metric("latency");
+
+    out_file << fixed
+             << "FraudDetection" << ","
+             << source_par_deg << ","
+             << predictor_par_deg << ","
+             << sink_par_deg << ","
+             << batch_size << ","
+             << sampling << ","
+             << app_run_time / 1000000000L << ","
+             << (size_t)throughput << ","
+             << elapsed_time_seconds << ","
+             << latency_metric.getN() << ","
+             << latency_metric.total() << ","
+             << latency_metric.mean() << ","
+             << latency_metric.min() << ","
+             << latency_metric.percentile(0.05) << ","
+             << latency_metric.percentile(0.25) << ","
+             << latency_metric.percentile(0.5) << ","
+             << latency_metric.percentile(0.75) << ","
+             << latency_metric.percentile(0.95) << ","
+             << latency_metric.max()
+             << endl;
+
+    out_file.close();
+
     return 0;
 }

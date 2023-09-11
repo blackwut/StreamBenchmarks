@@ -1,8 +1,8 @@
 /**************************************************************************************
  *  Copyright (c) 2019- Gabriele Mencagli and Alessandra Fais
- *  
+ *
  *  This file is part of StreamBenchmarks.
- *  
+ *
  *  StreamBenchmarks is free software dual licensed under the GNU LGPL or MIT License.
  *  You can redistribute it and/or modify it under the terms of the
  *    * GNU Lesser General Public License as published by
@@ -10,7 +10,7 @@
  *      (at your option) any later version
  *    OR
  *    * MIT License: https://github.com/ParaGroup/StreamBenchmarks/blob/master/LICENSE.MIT
- *  
+ *
  *  StreamBenchmarks is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -27,6 +27,8 @@
 #include<vector>
 #include "windflow.hpp"
 
+#include "../util/common.hpp"
+
 using namespace std;
 using namespace wf;
 
@@ -34,25 +36,25 @@ using namespace wf;
 class Prediction
 {
 private:
-    size_t key;
+    KEY_T key;
     string entity_id;
-    double_t score;
+    FLOAT_T score;
     vector<string> states;
     bool outlier;
 
 public:
     // Constructor
-    Prediction(size_t &_key, double_t _score, const vector<string> &_states, bool outlier):
+    Prediction(KEY_T &_key, FLOAT_T _score, const vector<string> &_states, bool outlier):
                key(_key), score(_score), states(_states), outlier(outlier) {}
 
     // get_key method
-    size_t get_key()
+    KEY_T get_key()
     {
         return key;
     }
 
     // get_score method
-    double_t get_score()
+    FLOAT_T get_score()
     {
         return score;
     }
@@ -70,7 +72,7 @@ public:
     }
 
     // set_key method
-    void set_key(size_t _key)
+    void set_key(KEY_T _key)
     {
         key = _key;
     }
@@ -82,7 +84,7 @@ public:
     }
 
     // set_score method
-    void set_score(double_t _score)
+    void set_score(FLOAT_T _score)
     {
         score = _score;
     }
