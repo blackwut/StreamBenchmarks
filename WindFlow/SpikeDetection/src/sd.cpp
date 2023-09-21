@@ -46,7 +46,8 @@ using record_t = tuple<string, string, int, int, double, double, double, double>
 vector<record_t> parsed_file; // contains data extracted from the input file
 vector<tuple_t> dataset; // contains all the tuples in memory
 unordered_map<size_t, uint64_t> key_occ; // contains the number of occurrences of each key device_id
-atomic<SIZE_T> sent_tuples; // total number of tuples sent by all the sources
+atomic<size_t> sent_tuples; // total number of tuples sent by all the sources
+atomic<size_t> received_tuples; // total number of tuples received by all the sinks
 
 // parse_dataset function
 void parse_dataset(const string &file_path)
@@ -313,64 +314,82 @@ int main(int argc, char* argv[])
     // util::metric_group.dump_all();
 
     bool print_header = false;
-    ifstream in_file("results.csv");
-    if (in_file.peek() == std::ifstream::traits_type::eof()) {
+    ifstream infile("results.csv");
+    if (infile.peek() == std::ifstream::traits_type::eof()) {
         print_header = true;
     }
-    in_file.close();
+    infile.close();
 
-    ofstream out_file;
-    out_file.open("results.csv", ios_base::app);
+    ofstream outfile;
+    outfile.open("results.csv", ios_base::app);
     if (print_header) {
-        out_file << "Application" << ","
-                 << "Source" << ","
-                 << "Average" << ","
-                 << "Detector" << ","
-                 << "Sink" << ","
-                 << "BatchSize" << ","
-                 << "Sampling" << ","
-                 << "Runtime (s)" << ","
-                 << "Throughput (t/s)" << ","
-                 << "Time (s)" << ","
-                 << "Samples" << ","
-                 << "Total" << ","
-                 << "Mean" << ","
-                 << "0" << ","
-                 << "5" << ","
-                 << "25" << ","
-                 << "50" << ","
-                 << "75" << ","
-                 << "95" << ","
-                 << "100"
-                 << endl;
+        outfile << "Application" << ","
+                << "Bitstream" << ","
+                << "Source" << ","
+                << "Average" << ","
+                << "Detector" << ","
+                << "Sink" << ","
+                << "MR Buffers" << ","
+                << "MW Buffers" << ","
+                << "MR BatchSize" << ","
+                << "MW BatchSize" << ","
+                << "Sampling" << ","
+                << "TupleSent" << ","
+                << "BatchesSent" << ","
+                << "TuplesReceived" << ","
+                << "BatchesReceived" << ","
+                << "Throughput (t/s)" << ","
+                << "Throughput (B/s)" << ","
+                << "Time (ms)" << ","
+                << "Time Compute (ns)" << ","
+                << "Samples" << ","
+                << "Total" << ","
+                << "Mean" << ","
+                << "0" << ","
+                << "5" << ","
+                << "25" << ","
+                << "50" << ","
+                << "75" << ","
+                << "95" << ","
+                << "100"
+                << std::endl;
     }
 
     auto latency_metric = util::metric_group.get_metric("latency");
 
-    out_file << fixed
-             << "SpikeDetection" << ","
-             << source_par_deg << ","
-             << average_par_deg << ","
-             << detector_par_deg << ","
-             << sink_par_deg << ","
-             << batch_size << ","
-             << sampling << ","
-             << app_run_time / 1000000000L << ","
-             << (size_t)throughput << ","
-             << elapsed_time_seconds << ","
-             << latency_metric.getN() << ","
-             << latency_metric.total() << ","
-             << latency_metric.mean() << ","
-             << latency_metric.min() << ","
-             << latency_metric.percentile(0.05) << ","
-             << latency_metric.percentile(0.25) << ","
-             << latency_metric.percentile(0.5) << ","
-             << latency_metric.percentile(0.75) << ","
-             << latency_metric.percentile(0.95) << ","
-             << latency_metric.max()
-             << endl;
+    outfile << fixed
+            << "SpikeDetection" << ","
+            << "none" << ","
+            << source_par_deg << ","
+            << average_par_deg << ","
+            << detector_par_deg << ","
+            << sink_par_deg << ","
+            << "0" << ","
+            << "0" << ","
+            << batch_size << ","
+            << "0" << ","
+            << sampling << ","
+            << sent_tuples << ","
+            << sent_tuples / batch_size << ","
+            << received_tuples << ","
+            << "0" << ","
+            << (uint64_t)throughput << ","
+            << (uint64_t)(throughput * sizeof(tuple_t)) << ","
+            << (uint64_t)((end_time_main_usecs - start_time_main_usecs) / 1000L) << ","
+            << (uint64_t)((end_time_main_usecs - start_time_main_usecs) * 1000L) << ","
+            << (uint64_t)latency_metric.getN() << ","
+            << (uint64_t)latency_metric.total() << ","
+            << (uint64_t)latency_metric.mean() << ","
+            << (uint64_t)latency_metric.min() << ","
+            << (uint64_t)latency_metric.percentile(0.05) << ","
+            << (uint64_t)latency_metric.percentile(0.25) << ","
+            << (uint64_t)latency_metric.percentile(0.5) << ","
+            << (uint64_t)latency_metric.percentile(0.75) << ","
+            << (uint64_t)latency_metric.percentile(0.95) << ","
+            << (uint64_t)latency_metric.max()
+            << endl;
 
-    out_file.close();
+    outfile.close();
 
     return 0;
 }

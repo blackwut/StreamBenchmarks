@@ -36,12 +36,12 @@ using namespace wf;
 class Detector_Functor
 {
 private:
-    SIZE_T processed;
-    SIZE_T outliers;
+    size_t processed;
+    size_t outliers;
     TIMESTAMP_T app_start_time;
     TIMESTAMP_T current_time;
-    SIZE_T parallelism;
-    SIZE_T replica_id;
+    size_t parallelism;
+    size_t replica_id;
 
 public:
     // Constructor

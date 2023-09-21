@@ -36,21 +36,23 @@ using namespace std;
 using namespace ff;
 using namespace wf;
 
+extern atomic<size_t> received_tuples;
+
 // Sink_Functor class
 class Sink_Functor
 {
 private:
-    SIZE_T sampling;
+    size_t sampling;
     TIMESTAMP_T app_start_time;
     TIMESTAMP_T current_time;
-    SIZE_T processed;
-    SIZE_T parallelism;
-    SIZE_T replica_id;
+    size_t processed;
+    size_t parallelism;
+    size_t replica_id;
     util::Sampler latency_sampler;
 
 public:
     // Constructor
-    Sink_Functor(const SIZE_T _sampling,
+    Sink_Functor(const size_t _sampling,
                  const TIMESTAMP_T _app_start_time):
                  sampling(_sampling),
                  app_start_time(_app_start_time),
@@ -82,6 +84,7 @@ public:
                  << ", execution time: " << (current_time - app_start_time) / 1e09
                  << " s, processed: " << processed
                  << endl;*/
+            received_tuples.fetch_add(processed);
             util::metric_group.add("latency", latency_sampler);
         }
     }

@@ -34,29 +34,36 @@ using namespace std;
 using namespace ff;
 using namespace wf;
 
-extern atomic<SIZE_T> sent_tuples;
+extern atomic<size_t> sent_tuples;
 
 // Source_Functor class
 class Source_Functor
 {
 private:
     const vector<tuple_t> &dataset;
-    SIZE_T rate;
-    SIZE_T next_tuple_idx;
-    SIZE_T generated_tuples;
+    int rate;
+    size_t next_tuple_idx;
+    size_t generated_tuples;
     TIMESTAMP_T app_start_time;
     TIMESTAMP_T current_time;
-    SIZE_T batch_size;
+    size_t batch_size;
 
     // active_delay method
-    void active_delay(TIMESTAMP_T waste_time)
+    // void active_delay(TIMESTAMP_T waste_time)
+    // {
+    //     auto start_time = current_time_nsecs();
+    //     bool end = false;
+    //     while (!end) {
+    //         auto end_time = current_time_nsecs();
+    //         end = (end_time - start_time) >= waste_time;
+    //     }
+    // }
+
+    bool update_done(const uint64_t app_start_time,
+                 const uint64_t app_run_time,
+                 const uint64_t current_time = current_time_nsecs())
     {
-        auto start_time = current_time_nsecs();
-        bool end = false;
-        while (!end) {
-            auto end_time = current_time_nsecs();
-            end = (end_time - start_time) >= waste_time;
-        }
+        return ((current_time - app_start_time) > app_run_time);
     }
 
 public:
@@ -64,7 +71,7 @@ public:
     Source_Functor(const vector<tuple_t> &_dataset,
                    const int _rate,
                    const TIMESTAMP_T _app_start_time,
-                   const SIZE_T _batch_size):
+                   const size_t _batch_size):
                    dataset(_dataset),
                    rate(_rate),
                    next_tuple_idx(0),
@@ -76,26 +83,41 @@ public:
     // operator() method
     void operator()(Source_Shipper<tuple_t> &shipper)
     {
-        current_time = current_time_nsecs(); // get the current time
-        while (current_time - app_start_time <= app_run_time) // generation loop
-        {
-            tuple_t t(dataset.at(next_tuple_idx));
-            if ((batch_size > 0) && (generated_tuples % batch_size == 0)) {
-                current_time = current_time_nsecs(); // get the new current time
+        bool done = update_done(app_start_time, app_run_time);
+        while (!done) {
+
+            TIMESTAMP_T current_time = current_time_nsecs();
+            for (size_t i = 0; i < batch_size; ++i) {
+                tuple_t t = dataset[next_tuple_idx];
+                shipper.pushWithTimestamp(std::move(t), current_time);
+                next_tuple_idx = ((next_tuple_idx + 1) == dataset.size() ? 0 : next_tuple_idx + 1);
             }
-            if (batch_size == 0) {
-                current_time = current_time_nsecs(); // get the new current time
-            }
-            // t.ts = current_time;
-            shipper.pushWithTimestamp(std::move(t), current_time); // send the next tuple
-            generated_tuples++;
-            next_tuple_idx = (next_tuple_idx + 1) % dataset.size();
-            if (rate != 0) { // active waiting to respect the generation rate
-                TIMESTAMP_T delay_nsec = (TIMESTAMP_T) ((1.0 / rate) * 1e9);
-                active_delay(delay_nsec);
-            }
+            done = update_done(app_start_time, app_run_time);
+            generated_tuples += batch_size;
         }
-        sent_tuples.fetch_add(generated_tuples); // save the number of generated tuples
+
+        sent_tuples.fetch_add(generated_tuples);
+
+        // current_time = current_time_nsecs(); // get the current time
+        // while (current_time - app_start_time <= app_run_time) // generation loop
+        // {
+        //     tuple_t t(dataset.at(next_tuple_idx));
+        //     if ((batch_size > 0) && (generated_tuples % batch_size == 0)) {
+        //         current_time = current_time_nsecs(); // get the new current time
+        //     }
+        //     if (batch_size == 0) {
+        //         current_time = current_time_nsecs(); // get the new current time
+        //     }
+        //     // t.ts = current_time;
+        //     shipper.pushWithTimestamp(std::move(t), current_time); // send the next tuple
+        //     generated_tuples++;
+        //     next_tuple_idx = (next_tuple_idx + 1) % dataset.size();
+        //     if (rate != 0) { // active waiting to respect the generation rate
+        //         TIMESTAMP_T delay_nsec = (TIMESTAMP_T) ((1.0 / rate) * 1e9);
+        //         active_delay(delay_nsec);
+        //     }
+        // }
+        // sent_tuples.fetch_add(generated_tuples); // save the number of generated tuples
     }
 
     // Destructor

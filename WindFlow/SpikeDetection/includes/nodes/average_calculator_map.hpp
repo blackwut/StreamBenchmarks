@@ -75,13 +75,13 @@ public:
 class Average_Calculator_Map_Functor
 {
 private:
-    SIZE_T processed;
+    size_t processed;
     Incremental_Average_Calculator mean_calculator;
     unordered_map<SIZE_T, KEY_T> keys;
     TIMESTAMP_T app_start_time;
     TIMESTAMP_T current_time;
-    SIZE_T parallelism;
-    SIZE_T replica_id;
+    size_t parallelism;
+    size_t replica_id;
 
 public:
     // Constructor
